@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,29 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('dashboard');
+Route::group(['prefix' => LaravelLocalization::setLocale(),],function(){
+    Auth::routes();
+
+    Route::group(['middleware' => 'guest'],function(){
+        Route::get('/', function () {
+            view('auth.login');
+        });
+    });
 });
+
+
+Route::group([
+        'prefix' => LaravelLocalization::setLocale(),
+        'middleware' => [ 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath' ,'auth']
+    ],
+    function(){
+
+
+        Route::get('/dashboard', function () {return view('dashboard');});
+
+
+        Route::resource('grade' , 'GradeController');
+        Route::resource('classroom' , 'ClassroomController');
+
+    });
+
